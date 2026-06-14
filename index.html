@@ -116,7 +116,7 @@
 
 <div class="topbar">
   <h1>金茂府 · 不锈钢/台面/其他 排查录入</h1>
-  <div class="sub">手机离线版 · 可拍照　|　<b>版本 0607-S（🆕保存查重防同户录两遍/户号填错 + 拍照圈注 + 已拍照片旁「✏️圈」可补圈；水印 + 户号提示 + 点开放大）</b></div>
+  <div class="sub">手机离线版 · 可拍照　|　<b>版本 0607-T（🆕清理已导出照片省空间 + 保存查重防同户录两遍/户号填错 + 拍照圈注 + 已拍照片旁「✏️圈」可补圈；水印 + 户号提示 + 点开放大）</b></div>
   <div class="statusrow">
     <span id="curHouse" class="cnt">当前：未填户号</span>
     <span id="curLv" class="badge lvw">待查</span>
@@ -164,6 +164,7 @@
     <button class="exp" id="btnNew" onclick="exportNew()">导出新增（表格＋照片）</button>
     <button onclick="exportAll()">导出全部（备份）</button>
     <button class="clr" onclick="clearAll()">清空全部</button>
+    <button id="btnClrExp" onclick="clearExported()" style="background:#E8A33D;color:#fff;border:none;">🧹 清理已导出照片·省空间</button>
   </div>
   <div class="tip"><b>「导出新增」=只导上次导出之后新填的户</b>（文件小，建议每栋楼/每20户导一次发回，前面导过的不会重复）；「导出全部」=把所有户重导一遍（备份或最后用）。改过的户也会算进"新增"重新导一次。数据/照片存本手机不丢，换手机/清缓存前先导。拍照版用 Safari/Chrome 导出更稳。</div>
 </div>
@@ -576,6 +577,18 @@ async function exportAll(){
   catch(e){ toast("打包失败，请重试"); }
 }
 function clearAll(){ if(!confirm("确定清空全部 "+state.records.length+" 户记录和照片？建议先导出。")) return; mClear(); state=blank(); persist(); fillForm(); renderDefects(); renderCustom(); renderPhotos(); refreshStatus(); renderRecs(); }
+// 🧹 清理已导出照片：只删【已导出(已发段总)】的户的照片，释放手机空间；保留文字记录。手动+二次确认，绝不碰未导出的。
+async function clearExported(){
+  maybeSaveCurrent();
+  const done=state.records.filter(r=>r.exported && (r.photos||[]).length);
+  const nH=done.length, nP=done.reduce((s,r)=>s+(r.photos||[]).length,0);
+  if(nP===0){ toast("没有可清理的已导出照片（只清理已导出过的户）"); return; }
+  if(!confirm(`⚠️ 即将清理 ${nH} 户 ${nP} 张【已导出】照片，释放手机空间。\n\n请先确认：这些户的 zip 已经发给段总、并收到了！\n\n清理后录入器里的照片删除【不可恢复】（但你导出的 zip 里、汇总总表上都有，不影响汇总）。确定清理？`)) return;
+  let del=0;
+  for(const r of done){ for(const p of (r.photos||[])){ try{await mDel(p.id)}catch(e){} del++; } r.photos=[]; r._cleared=true; }
+  persist(); renderRecs(); refreshStatus();
+  toast(`已清理 ${del} 张照片，手机空间已释放`);
+}
 
 // ===== ZIP (STORE, 无压缩) =====
 function crc32(b){ let c=~0; for(let i=0;i<b.length;i++){ c^=b[i]; for(let k=0;k<8;k++) c=(c>>>1)^(0xEDB88320 & -(c&1)); } return ~c>>>0; }
