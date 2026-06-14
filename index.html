@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>金盈泰 现场排查</title>
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<meta name="apple-mobile-web-app-title" content="金盈泰">
+<style>
+  :root{ --navy:#1F3864; --orange:#C25E00; --blue:#2E5395; --fill:#E8EEF7;
+    --red:#C00000; --amber:#BF8F00; --green:#548235; --gray:#888; --line:#D7DEEA; --bg:#F4F6FA; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--bg);
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",Arial,sans-serif; color:#1A1A1A;}
+  body{padding-bottom:130px;}
+  .topbar{position:sticky; top:0; z-index:50; background:var(--navy); color:#fff;
+    padding:10px 12px; box-shadow:0 2px 6px rgba(0,0,0,.15);}
+  .topbar h1{margin:0; font-size:15px; font-weight:700; letter-spacing:.5px;}
+  .topbar .sub{font-size:11px; opacity:.8; margin-top:2px;}
+  .statusrow{display:flex; gap:8px; align-items:center; margin-top:8px;}
+  .badge{padding:4px 10px; border-radius:14px; font-size:13px; font-weight:700; background:#fff; color:var(--navy);}
+  .badge.lv0{background:#E2EFDA; color:var(--green);}
+  .badge.lv1{background:#DDEBF7; color:var(--blue);}
+  .badge.lv2{background:#FCE4D6; color:var(--amber);}
+  .badge.lv3{background:#F4CCCC; color:var(--red);}
+  .badge.lvw{background:#fff; color:#999;}
+  .cnt{font-size:12px; opacity:.9;}
+  .card{background:#fff; margin:10px; border-radius:12px; padding:12px 12px 4px; box-shadow:0 1px 3px rgba(0,0,0,.06);}
+  .card h2{margin:0 0 10px; font-size:14px; color:var(--navy); font-weight:700; border-left:4px solid var(--orange); padding-left:8px;}
+  .grp-label{font-size:12px; color:var(--blue); font-weight:700; margin:8px 0 2px;}
+  .grp-row{display:flex; align-items:center; justify-content:space-between; gap:8px; margin:10px 0 2px; padding-bottom:5px; border-bottom:1px dashed #DCE3EE;}
+  .grp-row .grp-label{margin:0;}
+  .gsup{padding:7px 8px; font-size:13px; border:1px solid var(--blue); border-radius:7px; background:#F5F8FD; color:var(--navy); font-weight:700; min-width:118px;}
+  .field{margin-bottom:10px;}
+  .field label{display:block; font-size:12px; color:#555; margin-bottom:4px;}
+  .field input{width:100%; padding:10px; font-size:16px; border:1px solid var(--line); border-radius:8px; background:#fff;}
+  .row2{display:flex; gap:8px;} .row2>.field{flex:1;}
+  .pill{display:inline-block; padding:8px 14px; margin:0 6px 6px 0; border-radius:18px; border:1px solid var(--line); font-size:14px; background:#fff;}
+  .pill.on{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .defect{padding:8px 0; border-bottom:1px solid #EEF1F6;}
+  .defect:last-child{border-bottom:none;}
+  .dhead{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .dname{font-size:13.5px; font-weight:600; line-height:1.35;}
+  .dcode{color:var(--orange); font-weight:700; margin-right:4px;}
+  .help-btn{flex:none; width:22px; height:22px; border-radius:50%; border:1px solid var(--line); background:#fff; color:var(--blue); font-size:13px; font-weight:700; line-height:20px; text-align:center;}
+  .help{display:none; font-size:12px; color:#666; background:var(--fill); border-radius:8px; padding:8px; margin-top:6px; line-height:1.5;}
+  .help.show{display:block;}
+  .opts{display:flex; gap:5px; margin-top:8px;}
+  .opt{flex:1; text-align:center; padding:9px 2px; font-size:12.5px; border-radius:8px; border:1px solid var(--line); background:#fff; color:#555; font-weight:600;}
+  .opt[data-v="合格"].on{background:#E2EFDA; color:var(--green); border-color:var(--green);}
+  .opt[data-v="轻微"].on{background:#DDEBF7; color:var(--blue); border-color:var(--blue);}
+  .opt[data-v="严重"].on{background:#FCE4D6; color:var(--amber); border-color:var(--amber);}
+  .opt[data-v="不可交付"].on{background:#F4CCCC; color:var(--red); border-color:var(--red); font-weight:700;}
+  .opt[data-v="不涉及"].on{background:#EDEDED; color:#888; border-color:#bbb;}
+  .addbtn{display:block; width:100%; margin:10px 0 4px; padding:11px; border:1.5px dashed var(--blue); background:#F5F8FD; color:var(--blue); font-size:13.5px; font-weight:700; border-radius:9px;}
+  .custom{padding:8px; border:1px solid var(--line); border-radius:9px; margin-top:8px; background:#FAFBFD;}
+  .custom .crow{display:flex; gap:6px; align-items:center;}
+  .custom input{flex:1; padding:8px; font-size:14px; border:1px solid var(--line); border-radius:7px;}
+  .custom .delx{flex:none; width:30px; height:34px; border:none; background:none; color:var(--red); font-size:18px;}
+  /* 照片 */
+  .photos{display:flex; flex-direction:column; gap:8px; margin-top:6px;}
+  .prow{display:flex; align-items:center; gap:8px;}
+  .pthumb{flex:none; width:56px; height:56px; border-radius:8px; overflow:hidden; border:1px solid var(--line); background:#222; display:flex; align-items:center; justify-content:center;}
+  .pthumb img{width:100%; height:100%; object-fit:cover;}
+  .pthumb.vid{color:#fff; font-size:24px;}
+  .pthumb{cursor:zoom-in;}
+  .lbox{display:none; position:fixed; top:0;left:0;right:0;bottom:0; z-index:300; background:rgba(0,0,0,.94); align-items:center; justify-content:center; overflow:hidden; touch-action:none;}
+  .lbox img{max-width:100%; max-height:100%; object-fit:contain; transform-origin:center center; will-change:transform; -webkit-user-drag:none; user-select:none;}
+  .lbx{position:fixed; top:calc(env(safe-area-inset-top) + 8px); right:12px; z-index:301; width:42px; height:42px; border:none; border-radius:50%; background:rgba(255,255,255,.22); color:#fff; font-size:20px;}
+  .lbhint{position:fixed; left:0; right:0; bottom:calc(env(safe-area-inset-bottom) + 14px); text-align:center; color:rgba(255,255,255,.72); font-size:12px; z-index:301; pointer-events:none;}
+  .annoBox{display:none; position:fixed; top:0;left:0;right:0;bottom:0; z-index:400; background:#000; flex-direction:column; align-items:center; justify-content:center;}
+  .annoHint{position:fixed; top:calc(env(safe-area-inset-top) + 8px); left:0; right:0; text-align:center; color:#fff; font-size:13px; z-index:401; pointer-events:none; text-shadow:0 1px 3px #000;}
+  #annoCv{max-width:100%; max-height:calc(100vh - 86px); touch-action:none; display:block;}
+  .annoBar{position:fixed; bottom:0; left:0; right:0; display:flex; gap:8px; padding:10px 12px calc(10px + env(safe-area-inset-bottom)); background:rgba(0,0,0,.88); z-index:401;}
+  .annoBar button{flex:1; padding:13px 6px; font-size:15px; font-weight:700; border:none; border-radius:9px; background:#3a3a3a; color:#fff;}
+  .annoBar button.done{background:#1E7A46; flex:1.5;}
+  .pnote{flex:1; padding:9px; font-size:14px; border:1px solid var(--line); border-radius:7px;}
+  .pedit{flex:none; border:none; background:#EEF3FB; color:var(--blue); font-size:13px; font-weight:700; padding:7px 8px; border-radius:7px;}
+  .pdel{flex:none; width:30px; height:36px; border:none; background:none; color:var(--red); font-size:18px;}
+  .addphoto{width:100%; padding:12px; border:1.5px dashed var(--blue); border-radius:9px; background:#F5F8FD; color:var(--blue); font-size:14px; font-weight:700; text-align:center; margin-top:2px;}
+  .footer{position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--line); padding:10px 12px calc(10px + env(safe-area-inset-bottom)); display:flex; gap:8px; z-index:60; box-shadow:0 -2px 8px rgba(0,0,0,.08);}
+  .btn{flex:1; padding:13px; font-size:15px; font-weight:700; border:none; border-radius:10px;}
+  .btn-save{background:var(--navy); color:#fff;}
+  .btn-new{background:#fff; color:var(--navy); border:1.5px solid var(--navy); flex:none; padding:13px 11px; font-size:13px;}
+  .btn-back{background:#fff; color:var(--navy); border:1.5px solid var(--navy); flex:none; padding:13px 11px; font-size:13px;}
+  .searchbox{width:100%; padding:9px 11px; font-size:14px; border:1px solid var(--line); border-radius:8px; margin:2px 0 6px;}
+  .rec{display:flex; align-items:center; gap:8px; padding:9px 6px; border-bottom:1px solid #EEF1F6; font-size:13px;}
+  .rec .h{flex:1; font-weight:600;}
+  .rec .mini{font-size:11px; color:#999;}
+  .rec button{border:none; background:none; font-size:13px; padding:6px 8px;}
+  .rec .edit{color:var(--blue);} .rec .del{color:var(--red);}
+  .toolbtns{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
+  .toolbtns button{flex:1; min-width:120px; padding:11px; font-size:13.5px; font-weight:700; border-radius:9px; border:1px solid var(--line); background:#fff;}
+  .toolbtns .exp{background:#1E7A46; color:#fff; border-color:#1E7A46;}
+  .toolbtns .clr{color:var(--red); border-color:#E6B9B9;}
+  .stat{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;}
+  .stat span{background:var(--fill); border-radius:8px; padding:5px 9px; font-size:12px; color:var(--navy);}
+  .tip{font-size:11.5px; color:#999; margin:4px 2px 0; line-height:1.5;}
+  .toast{position:fixed; left:50%; top:46%; transform:translate(-50%,-50%); background:rgba(0,0,0,.82); color:#fff; padding:12px 20px; border-radius:10px; font-size:14px; z-index:99; display:none; max-width:80%; text-align:center;}
+  .modal-mask{display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:200; align-items:center; justify-content:center;}
+  .modal-mask.show{display:flex;}
+  .modal-box{background:#fff; border-radius:14px; padding:18px 16px; width:86%; max-width:340px;}
+  .modal-title{font-size:15px; font-weight:700; color:var(--navy); margin-bottom:14px; line-height:1.5;}
+  .modal-btn{display:block; width:100%; padding:14px; margin-bottom:10px; border-radius:10px; font-size:15px; font-weight:700; border:none;}
+  .modal-btn.save{background:var(--navy); color:#fff;}
+  .modal-btn.discard{background:#fff; color:var(--red); border:1.5px solid #E6B9B9;}
+  .modal-btn.cancel{background:#F0F0F0; color:#555; margin-bottom:0;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>金茂府 · 不锈钢/台面/其他 排查录入</h1>
+  <div class="sub">手机离线版 · 可拍照　|　<b>版本 0607-S（🆕保存查重防同户录两遍/户号填错 + 拍照圈注 + 已拍照片旁「✏️圈」可补圈；水印 + 户号提示 + 点开放大）</b></div>
+  <div class="statusrow">
+    <span id="curHouse" class="cnt">当前：未填户号</span>
+    <span id="curLv" class="badge lvw">待查</span>
+    <span id="curCnt" class="cnt">缺陷 0 项</span>
+    <span onclick="forceUpdate()" style="margin-left:auto; background:rgba(255,255,255,.18); padding:5px 9px; border-radius:12px; font-size:11px; white-space:nowrap;">🔄 刷新最新版</span>
+  </div>
+</div>
+
+<div class="card">
+  <h2>① 户信息</h2>
+  <div class="row2">
+    <div class="field"><label>楼栋</label><input id="f_build" placeholder="如 12#"></div>
+    <div class="field"><label>户号 *</label><input id="f_unit" placeholder="如 301"></div>
+  </div>
+  <div class="row2">
+    <div class="field"><label>户型</label><input id="f_type" placeholder="如 255"></div>
+    <div class="field"><label>检查人</label><input id="f_who" placeholder="如 吴明龙"></div>
+  </div>
+  <div class="field"><label>检查日期</label><input id="f_date" type="date"></div>
+  <div class="tip" style="margin:0">供应商在下面每类问题的标题旁单独选（柜体/台面/外观各自的供应商）。</div>
+</div>
+
+<div class="card" id="defectCard">
+  <h2>② 逐项点选</h2>
+  <div id="defects"></div>
+  <div id="customBox"></div>
+  <button class="addbtn" onclick="addCustom()">＋ 添加自定义项（查到别的问题就点一下，可连续加多项）</button>
+</div>
+
+<div class="card">
+  <h2>③ 照片 / 视频（点 ＋ 直接拍）</h2>
+  <input id="picker" type="file" accept="image/*,video/*" multiple style="display:none" onchange="onPick(event)">
+  <div class="photos" id="photoBox"></div>
+  <div class="field" style="margin-top:10px;"><label>本户总备注 / 换件清单</label><input id="f_note" placeholder="选填，针对整户"></div>
+  <div class="tip">点下方按钮可拍照/录像（也可从相册选）。<b>每拍一张，右边就能写这张拍的是哪项问题</b>（如 J1顶板波浪 / 岩板崩瓷），导出时备注会跟着照片走。照片自动压缩；视频较大建议短拍少拍。<b>📸 拍照会自动打上"宁波金茂府·楼栋户号·时间·检查人"水印——拍前先填好楼栋/户号/检查人，水印才准（视频不打水印）。</b></div>
+</div>
+
+<div class="card">
+  <h2>④ 已保存户清单</h2>
+  <div class="tip" style="margin:0 0 4px;">填完一户要点【保存本户】才进清单；想改某户，下框输户号定位、或点那行「✏️改」，改完再点【保存本户】即更新。</div>
+  <input id="searchRec" class="searchbox" placeholder="🔍 输户号或楼栋快速定位（如 101 / 1栋）" oninput="renderRecs()">
+  <div class="stat" id="statBox"></div>
+  <div id="recList" style="margin-top:6px;"></div>
+  <div class="toolbtns">
+    <button class="exp" id="btnNew" onclick="exportNew()">导出新增（表格＋照片）</button>
+    <button onclick="exportAll()">导出全部（备份）</button>
+    <button class="clr" onclick="clearAll()">清空全部</button>
+  </div>
+  <div class="tip"><b>「导出新增」=只导上次导出之后新填的户</b>（文件小，建议每栋楼/每20户导一次发回，前面导过的不会重复）；「导出全部」=把所有户重导一遍（备份或最后用）。改过的户也会算进"新增"重新导一次。数据/照片存本手机不丢，换手机/清缓存前先导。拍照版用 Safari/Chrome 导出更稳。</div>
+</div>
+
+<div class="footer">
+  <button class="btn btn-back" onclick="prevHouse()">↩ 上一户</button>
+  <button class="btn btn-save" onclick="saveHouse()">✓ 保存本户</button>
+  <button class="btn btn-new" onclick="newHouse()">下一户</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-mask" id="nextModal">
+  <div class="modal-box">
+    <div class="modal-title" id="nextModalTitle">当前这户还没保存，怎么处理？</div>
+    <button class="modal-btn save" onclick="nextChoice('save')">💾 保存本户，并进入下一户</button>
+    <button class="modal-btn discard" onclick="nextChoice('discard')">🗑 丢弃本户，进入下一户</button>
+    <button class="modal-btn cancel" onclick="nextChoice('cancel')">取消（继续填本户）</button>
+  </div>
+</div>
+
+<div class="modal-mask" id="dupModal">
+  <div class="modal-box">
+    <div class="modal-title" id="dupTitle">这户已经录过了，是不是户号填错了？</div>
+    <button class="modal-btn save" onclick="dupChoice('rename')">🔢 户号填错了，返回改户号</button>
+    <button class="modal-btn discard" onclick="dupChoice('edit')">✏️ 这户我已录过，去编辑原来那条</button>
+    <button class="modal-btn cancel" onclick="dupChoice('force')">➕ 确实是不同两户，强制新增一条</button>
+  </div>
+</div>
+
+<script>
+// ===== 缺陷定义（按 2026-06-07 调整：柜体9 + 台面岩板5 + 外观1 + 自定义）=====
+const SUPPLIERS=["港泽","山东众擎","博文","金牌","其他"];
+const DCATS=[
+ {key:"cabinet", grp:"柜体不锈钢", items:[
+  ["J1","顶板S型波浪变形","顶板呈S/波浪，调平也压不平；约占10-20%，多需整件换板"],
+  ["J2","柜体垂直度超差(>2mm)","吊垂线或靠尺，垂直度误差>2mm即超差（展发标准≤2mm）"],
+  ["J3","平行度/方正度超差","量上下口长度差(如上口3米/下口2.95米差≈1cm)、对角线差"],
+  ["J4","编织网错位/不平行/不方正","通病·几乎每户；根因=焊接无定位+吊装变形"],
+  ["J5","焊点外露(可见面)","开放格成板等可见面有外露焊点；批量性"],
+  ["J6","焊点毛刺/脱焊/虚焊","手摸/目测各拼接焊点，逐点补焊打磨"],
+  ["J7","圆弧与直面不切合/接缝错台","圆弧与直面/静止圆弧对不上；根因=断面工艺方向做错"],
+  ["J8","圆弧/接缝处违规打胶","本应无缝拼接处用打胶掩盖=违规，需铲除重做"],
+  ["J9","阳角/冷角尖锐刮手","手摸边角锋利=安全隐患，必打磨倒钝"],
+ ]},
+ {key:"counter", grp:"台面事项：岩板+蜂窝板", items:[
+  ["T1","台面下卦反收口不到位","台面下卦(下挂)反收口不到位、有缝/不平整"],
+  ["T2","蜂窝垫板不平整未满铺","岩板下的蜂窝垫板不平整、未满铺、有空鼓"],
+  ["T3","下卦高度不一致","台面下卦(下挂)边高度前后/左右不一致"],
+  ["T4","岩板崩瓷","岩板边角/表面崩瓷、缺口"],
+  ["T5","台面平整度/拼接缝高低差","靠尺测平整；拼接缝有高低差/错台"],
+ ]},
+ {key:"surface", grp:"外观与配件", items:[
+  ["K1","中厨亚克力门板起鼓","中厨亚克力门板表面起鼓/分层/鼓包"],
+ ]},
+];
+const FIXED=DCATS.flatMap(c=>c.items.map(i=>i[0]));   // 固定项代码顺序
+const OPTS=["合格","轻微","严重","不可交付","不涉及"];
+const LV={ "合格":0,"轻微":1,"严重":2,"不可交付":3 };
+const KEY="jmf_inspect_v2";
+
+let state=load();
+function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); return s&&s.records?s:blank(); }catch(e){ return blank(); } }
+function blank(){ return { records:[], cur:emptyCur(), editIdx:null, exportBatch:0 }; }
+function emptyCur(){ return { hid:uid(), build:"",unit:"",type:"",who:"",date:"",note:"", gsup:{cabinet:"港泽",counter:"山东众擎",surface:""}, j:{}, custom:[], photos:[] }; }
+function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ toast("存储空间紧张，建议先导出"); } }
+function uid(){ try{ return crypto.randomUUID(); }catch(e){ return 'id'+Date.now()+Math.random().toString(16).slice(2); } }
+
+// ===== IndexedDB 存照片/视频 =====
+let _db;
+function idb(){ return new Promise((res,rej)=>{ if(_db)return res(_db);
+  const r=indexedDB.open('jmf_media',1);
+  r.onupgradeneeded=()=>{ if(!r.result.objectStoreNames.contains('media')) r.result.createObjectStore('media',{keyPath:'id'}); };
+  r.onsuccess=()=>{_db=r.result;res(_db);}; r.onerror=()=>rej(r.error); }); }
+async function mPut(o){ const db=await idb(); return new Promise((res,rej)=>{ const t=db.transaction('media','readwrite'); t.objectStore('media').put(o); t.oncomplete=()=>res(); t.onerror=()=>rej(t.error); }); }
+async function mGet(id){ const db=await idb(); return new Promise((res,rej)=>{ const t=db.transaction('media','readonly'); const q=t.objectStore('media').get(id); q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); }); }
+async function mDel(id){ const db=await idb(); return new Promise((res)=>{ const t=db.transaction('media','readwrite'); t.objectStore('media').delete(id); t.oncomplete=()=>res(); }); }
+async function mClear(){ const db=await idb(); return new Promise((res)=>{ const t=db.transaction('media','readwrite'); t.objectStore('media').clear(); t.oncomplete=()=>res(); }); }
+
+// ===== 渲染缺陷 =====
+function renderDefects(){
+  const box=document.getElementById("defects"); let html="";
+  DCATS.forEach(cat=>{
+    const sup=(state.cur.gsup&&state.cur.gsup[cat.key])||"";
+    html+=`<div class="grp-row"><span class="grp-label">${cat.grp}</span>
+      <select class="gsup" onchange="setGsup('${cat.key}',this.value)">
+        <option value="">供应商…</option>
+        ${SUPPLIERS.map(s=>`<option value="${s}"${sup===s?' selected':''}>${s}</option>`).join("")}
+      </select></div>`;
+    cat.items.forEach(d=>{
+      const [code,name,help]=d; const cur=state.cur.j[code]||"";
+      const opts=OPTS.map(o=>`<div class="opt ${cur===o?'on':''}" data-v="${o}" onclick="pick('${code}','${o}')">${o}</div>`).join("");
+      html+=`<div class="defect" id="def_${code}">
+        <div class="dhead"><div class="dname"><span class="dcode">${code}</span>${name}</div>
+          <button class="help-btn" onclick="toggleHelp('${code}')">?</button></div>
+        <div class="help" id="help_${code}">${help}</div>
+        <div class="opts">${opts}</div></div>`;
+    });
+  });
+  box.innerHTML=html;
+}
+function toggleHelp(c){ document.getElementById("help_"+c).classList.toggle("show"); }
+function setGsup(k,v){ if(!state.cur.gsup)state.cur.gsup={}; state.cur.gsup[k]=v; persist(); }
+function pick(code,val){ if(state.cur.j[code]===val) delete state.cur.j[code]; else state.cur.j[code]=val;
+  persist(); document.querySelectorAll(`#def_${code} .opt`).forEach(el=>el.classList.toggle("on",el.dataset.v===(state.cur.j[code]||""))); refreshStatus(); }
+
+// ===== 自定义项 =====
+function renderCustom(){
+  const box=document.getElementById("customBox");
+  box.innerHTML=state.cur.custom.map((c,i)=>{
+    const opts=OPTS.map(o=>`<div class="opt ${c.val===o?'on':''}" data-v="${o}" onclick="pickCustom(${i},'${o}')">${o}</div>`).join("");
+    const supOpts=SUPPLIERS.map(s=>`<option value="${s}"${c.sup===s?' selected':''}>${s}</option>`).join("");
+    return `<div class="custom">
+      <div class="crow"><span class="dcode">C${i+1}</span>
+        <input placeholder="自定义问题名称，如 门套变形" value="${(c.name||'').replace(/"/g,'&quot;')}" oninput="custName(${i},this.value)">
+        <button class="delx" onclick="delCustom(${i})">✕</button></div>
+      <div class="crow" style="margin-top:6px;"><select class="gsup" onchange="custSup(${i},this.value)"><option value="">供应商…</option>${supOpts}</select></div>
+      <div class="opts" style="margin-top:8px;">${opts}</div></div>`;
+  }).join("");
+}
+function addCustom(){ state.cur.custom.push({name:"",val:"",sup:""}); persist(); renderCustom(); }
+function custName(i,v){ state.cur.custom[i].name=v; persist(); }
+function custSup(i,v){ if(state.cur.custom[i]){ state.cur.custom[i].sup=v; persist(); } }
+function pickCustom(i,val){ state.cur.custom[i].val = (state.cur.custom[i].val===val)?"":val; persist(); renderCustom(); refreshStatus(); }
+function delCustom(i){ state.cur.custom.splice(i,1); persist(); renderCustom(); refreshStatus(); }
+
+// ===== 照片 =====
+function renderPhotos(){
+  const box=document.getElementById("photoBox");
+  let html=state.cur.photos.map((p,i)=>{
+    const thumb = p.kind==='vid' ? `<div class="pthumb vid">🎬</div>` : `<div class="pthumb" onclick="openImg('${p.id}')"><img id="thumb_${p.id}" alt=""></div>`;
+    const edit = p.kind==='vid' ? '' : `<button class="pedit" onclick="reAnno('${p.id}')">✏️圈</button>`;
+    return `<div class="prow">${thumb}
+      <input class="pnote" placeholder="这张拍的是哪项？如 J1顶板波浪/岩板崩瓷" value="${(p.note||'').replace(/"/g,'&quot;')}" oninput="photoNote(${i},this.value)">
+      ${edit}<button class="pdel" onclick="delPhoto(${i})">✕</button></div>`;
+  }).join("");
+  html+=`<div class="addphoto" onclick="addPhoto()">＋ 添加照片 / 视频（可拍可选，能加多张）</div>`;
+  box.innerHTML=html;
+  state.cur.photos.forEach(async p=>{ if(p.kind==='vid')return; const m=await mGet(p.id); if(m&&m.blob){ const el=document.getElementById('thumb_'+p.id); if(el) el.src=URL.createObjectURL(m.blob);} });
+}
+/* 拍照前置校验：户号为空先提示填户号（水印要用），填了之后同户后续照片不再提示 */
+function addPhoto(){ if(!(state.cur.unit||'').trim()){ toast("请先填户号，再拍照（水印要用）"); const el=document.getElementById('f_unit'); if(el){ try{el.scrollIntoView({block:'center',behavior:'smooth'});}catch(e){} el.focus(); } return; } document.getElementById('picker').click(); }
+/* ===== 照片水印（项目/户号/时间/检查人，烧进像素，像水印相机） ===== */
+function pad2(n){ return String(n).padStart(2,'0'); }
+function rr2(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function drawWatermark(ctx,W,H,c){
+  const proj="宁波金茂府";
+  const unit=((c.build||"").trim()?(c.build.trim()+"栋 "):"")+((c.unit||"").trim()?(c.unit.trim()+"号"):"");
+  const d=new Date();
+  const ts=d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())+" "+pad2(d.getHours())+":"+pad2(d.getMinutes());
+  const who=(c.who||"").trim();
+  const FF=" -apple-system,'PingFang SC','Microsoft YaHei',sans-serif";
+  const lines=[
+    {t:proj, fs:Math.max(20,Math.round(W/24)), col:"#FFD27A", b:true},
+    {t:(unit||"户号未填·请先填"), fs:Math.max(16,Math.round(W/32)), col:"#ffffff", b:true},
+    {t:ts+(who?("　检查人："+who):""), fs:Math.max(15,Math.round(W/34)), col:"#EAEAEA", b:false},
+  ];
+  ctx.textBaseline="top";
+  let tw=0; lines.forEach(L=>{ ctx.font=(L.b?"bold ":"")+L.fs+"px"+FF; tw=Math.max(tw,ctx.measureText(L.t).width); });
+  let textH=0; lines.forEach(L=> textH+=Math.round(L.fs*1.42));
+  const pad=Math.round(W*0.022), barW=Math.round(W*0.012), gap=Math.round(W*0.012);
+  const boxH=textH+pad*1.2, boxW=Math.min(W-pad*2, tw+barW+gap+pad);
+  const bx=pad, by=H-boxH-pad;
+  ctx.save();
+  ctx.fillStyle="rgba(0,0,0,0.5)"; rr2(ctx,bx,by,boxW,boxH,Math.round(W*0.018)); ctx.fill();
+  ctx.fillStyle="#F08A24"; rr2(ctx,bx,by,barW,boxH,Math.round(barW*0.45)); ctx.fill();
+  let ty=by+pad*0.6; const tx=bx+barW+gap;
+  ctx.shadowColor="rgba(0,0,0,0.6)"; ctx.shadowBlur=Math.max(2,Math.round(W/240)); ctx.shadowOffsetY=1;
+  lines.forEach(L=>{ ctx.font=(L.b?"bold ":"")+L.fs+"px"+FF; ctx.fillStyle=L.col; ctx.fillText(L.t,tx,ty); ty+=Math.round(L.fs*1.42); });
+  ctx.restore();
+}
+/* 拍照/选图 → 排队 → 图片进圈注编辑器,视频直接存 */
+let _picQ=[], _anOpen=false;
+function onPick(ev){ const files=[...ev.target.files]; ev.target.value=""; files.forEach(f=>_picQ.push(f)); picNext(); }
+function handleVideo(file){ const id=uid(); mPut({id, blob:file, kind:'vid', ext:(file.name.split('.').pop()||'mp4')}).then(()=>{ state.cur.photos.push({id, kind:'vid', size:file.size, note:""}); persist(); renderPhotos(); }); }
+function picNext(){
+  if(_anOpen) return;
+  const file=_picQ.shift(); if(!file) return;
+  if(file.type.startsWith('video')){ handleVideo(file); picNext(); return; }
+  const url=URL.createObjectURL(file); const img=new Image();
+  img.onload=()=>{ const max=1280, sc=Math.min(1,max/Math.max(img.width,img.height)), w=Math.round(img.width*sc), h=Math.round(img.height*sc);
+    const base=document.createElement('canvas'); base.width=w; base.height=h; base.getContext('2d').drawImage(img,0,0,w,h); URL.revokeObjectURL(url); openAnno(base); };
+  img.onerror=()=>{ toast("这张图读取失败"); URL.revokeObjectURL(url); picNext(); };
+  img.src=url;
+}
+/* ===== 圈注编辑器:拍照后用手指圈出问题点(红圈),圈完和水印一起烧进照片 ===== */
+let _an={base:null,strokes:[],cur:null};
+function openAnno(base, editId){
+  _an={base:base,strokes:[],cur:null,editId:editId||null}; _anOpen=true;
+  const cv=document.getElementById('annoCv'); cv.width=base.width; cv.height=base.height;
+  if(!cv._bound){ cv._bound=true; cv.addEventListener('touchstart',annoStart,{passive:false}); cv.addEventListener('touchmove',annoMove,{passive:false}); cv.addEventListener('touchend',annoEnd); }
+  annoRedraw(); document.getElementById('annoBox').style.display='flex';
+}
+function annoPt(e){ const cv=document.getElementById('annoCv'),r=cv.getBoundingClientRect(),t=e.touches[0]||e.changedTouches[0]; return {x:(t.clientX-r.left)/r.width*cv.width, y:(t.clientY-r.top)/r.height*cv.height}; }
+function annoStart(e){ e.preventDefault(); _an.cur=[annoPt(e)]; }
+function annoMove(e){ if(!_an.cur)return; e.preventDefault(); _an.cur.push(annoPt(e)); annoRedraw(); }
+function annoEnd(e){ if(_an.cur&&_an.cur.length>1)_an.strokes.push(_an.cur); _an.cur=null; annoRedraw(); }
+function annoStroke(x,s,lw){ if(!s.length)return; x.lineJoin='round'; x.lineCap='round';
+  x.strokeStyle='rgba(0,0,0,.5)'; x.lineWidth=lw+Math.max(2,lw*0.6); x.beginPath(); x.moveTo(s[0].x,s[0].y); for(const p of s)x.lineTo(p.x,p.y); x.stroke();
+  x.strokeStyle='#FF2D2D'; x.lineWidth=lw; x.beginPath(); x.moveTo(s[0].x,s[0].y); for(const p of s)x.lineTo(p.x,p.y); x.stroke(); }
+function annoRedraw(){ const cv=document.getElementById('annoCv'),x=cv.getContext('2d'); x.drawImage(_an.base,0,0); const lw=Math.max(5,Math.round(cv.width/100)); const all=_an.cur?_an.strokes.concat([_an.cur]):_an.strokes; for(const s of all)annoStroke(x,s,lw); }
+function annoUndo(){ _an.strokes.pop(); annoRedraw(); }
+function annoClear(){ _an.strokes=[]; _an.cur=null; annoRedraw(); }
+function annoClose(){ document.getElementById('annoBox').style.display='none'; _an={base:null,strokes:[],cur:null}; _anOpen=false; picNext(); }
+function annoCancel(){ annoClose(); }
+function reAnno(id){ if(_anOpen){toast("请先完成当前圈注");return;}
+  mGet(id).then(m=>{ if(!m||!m.blob){toast("照片读取失败");return;} const url=URL.createObjectURL(m.blob),img=new Image();
+    img.onload=()=>{ const base=document.createElement('canvas'); base.width=img.width; base.height=img.height; base.getContext('2d').drawImage(img,0,0); URL.revokeObjectURL(url); openAnno(base,id); };
+    img.onerror=()=>{ toast("照片读取失败"); URL.revokeObjectURL(url); }; img.src=url; }); }
+function annoDone(){
+  const cv=document.getElementById('annoCv'); annoRedraw();
+  if(!_an.editId) drawWatermark(cv.getContext('2d'),cv.width,cv.height,state.cur);  // 新照片打水印;补圈的已有水印不重复
+  const eid=_an.editId;
+  cv.toBlob(blob=>{
+    if(eid){ mPut({id:eid, blob, kind:'img', ext:'jpg'}).then(()=>{ const p=state.cur.photos.find(x=>x.id===eid); if(p)p.size=blob.size; persist(); renderPhotos(); }); }
+    else { const id=uid(); mPut({id, blob, kind:'img', ext:'jpg'}).then(()=>{ state.cur.photos.push({id, kind:'img', size:blob.size, note:""}); persist(); renderPhotos(); }); }
+    annoClose();
+  }, 'image/jpeg', 0.7);
+}
+function delPhoto(i){ const p=state.cur.photos[i]; if(p) mDel(p.id); state.cur.photos.splice(i,1); persist(); renderPhotos(); }
+function photoNote(i,v){ if(state.cur.photos[i]){ state.cur.photos[i].note=v; persist(); } }
+
+// ===== 等级计算 =====
+function calc(cur){
+  const vals=[...Object.values(cur.j||{}), ...((cur.custom||[]).filter(c=>(c.name||'').trim()).map(c=>c.val))];
+  let max=-1,cnt=0,any=vals.some(v=>v);
+  vals.forEach(v=>{ const L=LV[v]; if(L===undefined)return; if(L>=1)cnt++; if(L>max)max=L; });
+  let lv,cls;
+  if(max===3){lv="③不可交付";cls="lv3";} else if(max===2){lv="②严重";cls="lv2";}
+  else if(max===1){lv="①轻微";cls="lv1";} else if(max===0){lv="〇合格";cls="lv0";} else {lv="待查";cls="lvw";}
+  return {lv,cls,cnt,swap:max===3?"需换件":""};
+}
+function refreshStatus(){
+  const r=calc(state.cur); const u=document.getElementById("f_unit").value.trim();
+  document.getElementById("curHouse").textContent=u?("当前："+(document.getElementById("f_build").value.trim()||"")+" "+u):"当前：未填户号";
+  const b=document.getElementById("curLv"); b.textContent=r.lv; b.className="badge "+r.cls;
+  document.getElementById("curCnt").textContent="缺陷 "+r.cnt+" 项"+(r.swap?" · 需换件":"");
+}
+
+// ===== 户信息绑定 =====
+const fmap={f_build:"build",f_unit:"unit",f_type:"type",f_who:"who",f_date:"date",f_note:"note"};
+function bindFields(){
+  for(const id in fmap){ const el=document.getElementById(id);
+    el.addEventListener("input",()=>{ state.cur[fmap[id]]=el.value; persist(); if(id==="f_build"||id==="f_unit")refreshStatus(); }); }
+}
+function fillForm(){
+  document.getElementById("f_build").value=state.cur.build||"";
+  document.getElementById("f_unit").value=state.cur.unit||"";
+  document.getElementById("f_type").value=state.cur.type||"";
+  document.getElementById("f_who").value=state.cur.who||"";
+  document.getElementById("f_date").value=state.cur.date||todayStr(); state.cur.date=document.getElementById("f_date").value;
+  document.getElementById("f_note").value=state.cur.note||"";
+}
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+
+// ===== 保存/新建/编辑/删除 =====
+function saveHouse(){
+  state.cur.unit=document.getElementById("f_unit").value.trim();
+  if(!state.cur.unit){ toast("请先填户号"); return; }
+  // 🔴 保存查重：同楼栋+户号已存在(排除正在编辑的自己)→拦截，防同户录两遍/户号填错。强制保存时跳过。
+  if(!state._force){
+    const _b=(state.cur.build||'').trim(), _u=state.cur.unit;
+    const _di=state.records.findIndex((x,i)=> i!==state.editIdx && (x.build||'').trim()===_b && (x.unit||'').trim()===_u);
+    if(_di>=0){
+      const _ex=state.records[_di];
+      document.getElementById('dupTitle').innerHTML=`⚠️ 这户 <b>${_b} ${_u}</b> 已经录过了（缺陷 ${_ex._cnt||0} 项）。<br>是不是户号填错了？`;
+      document.getElementById('dupModal').dataset.idx=_di;
+      document.getElementById('dupModal').classList.add('show');
+      return;
+    }
+  }
+  state._force=false;
+  const r=calc(state.cur); const rec=JSON.parse(JSON.stringify(state.cur));
+  rec._lv=r.lv; rec._cls=r.cls; rec._cnt=r.cnt; rec._swap=r.swap; rec.exported=false;
+  if(state.editIdx!==null && state.editIdx>=0){ state.records[state.editIdx]=rec; state.editIdx=null; }
+  else state.records.push(rec);
+  const keep={build:state.cur.build,who:state.cur.who,date:state.cur.date,gsup:Object.assign({},state.cur.gsup)};
+  state.cur=emptyCur(); Object.assign(state.cur,keep);
+  persist(); fillForm(); renderDefects(); renderCustom(); renderPhotos(); refreshStatus(); renderRecs();
+  window.scrollTo({top:0,behavior:"smooth"}); toast("已保存第 "+state.records.length+" 户");
+}
+function newHouse(){
+  const c=state.cur, has=(c.unit||'').trim() && (Object.keys(c.j||{}).length||(c.photos||[]).length||(c.custom||[]).some(x=>(x.name||'').trim()));
+  if(has && state.editIdx===null){
+    document.getElementById('nextModalTitle').textContent = `当前【${(c.build||'')+' '+c.unit}】还没保存，怎么处理？`;
+    document.getElementById('nextModal').classList.add('show');
+    return;
+  }
+  doNewHouse();
+}
+function nextChoice(choice){
+  document.getElementById('nextModal').classList.remove('show');
+  if(choice==='cancel') return;
+  if(choice==='save'){ saveHouse(); return; }   // saveHouse 内含进入下一户
+  doNewHouse();                                   // discard
+}
+function dupChoice(choice){
+  const m=document.getElementById('dupModal'); const di=+m.dataset.idx;
+  m.classList.remove('show');
+  if(choice==='rename'){ const el=document.getElementById('f_unit'); el.focus(); if(el.select)el.select(); toast('请改正户号再保存'); }
+  else if(choice==='edit'){ state.editIdx=null; editRec(di); }
+  else if(choice==='force'){ state._force=true; saveHouse(); }
+}
+function doNewHouse(){
+  const keep={build:state.cur.build,who:state.cur.who,date:state.cur.date,gsup:Object.assign({},state.cur.gsup)};
+  state.cur=emptyCur(); Object.assign(state.cur,keep); state.editIdx=null;
+  persist(); fillForm(); renderDefects(); renderCustom(); renderPhotos(); refreshStatus(); window.scrollTo({top:0,behavior:"smooth"}); }
+function prevHouse(){
+  if(!state.records.length){ toast("还没有已保存的户"); return; }
+  editRec(state.records.length-1);  // 调出最近保存的那一户来改
+}
+function editRec(i){
+  const c=state.cur, has=(c.unit||'').trim() && (Object.keys(c.j||{}).length||(c.photos||[]).length||(c.custom||[]).some(x=>(x.name||'').trim()));
+  if(has && state.editIdx===null && !confirm('当前正在填的这户还没保存，先去改别的户会丢掉它。\n确定离开吗？（建议先点"保存本户"）')) return;
+  state.cur=JSON.parse(JSON.stringify(state.records[i])); if(!state.cur.custom)state.cur.custom=[]; if(!state.cur.photos)state.cur.photos=[]; if(!state.cur.gsup)state.cur.gsup={cabinet:"",counter:"",surface:""}; state.editIdx=i;
+  persist(); fillForm(); renderDefects(); renderCustom(); renderPhotos(); refreshStatus(); window.scrollTo({top:0,behavior:"smooth"}); toast("编辑第 "+(i+1)+" 户，改完点保存"); }
+function delRec(i){ if(!confirm("删除 "+(state.records[i].unit||"该户")+" ？")) return; (state.records[i].photos||[]).forEach(p=>mDel(p.id)); state.records.splice(i,1); persist(); renderRecs(); }
+
+function renderRecs(){
+  const box=document.getElementById("recList");
+  const q=(document.getElementById('searchRec')?.value||'').trim();
+  const shown=state.records.map((r,i)=>({r,i})).filter(({r})=> !q || (r.unit||'').includes(q) || (r.build||'').includes(q));
+  if(state.records.length===0){ box.innerHTML='<div class="tip" style="margin:6px 0;">暂无记录，填完一户点"保存本户"。</div>'; }
+  else if(shown.length===0){ box.innerHTML=`<div class="tip" style="margin:6px 0;">没找到含"${q}"的户。</div>`; }
+  else box.innerHTML = shown.map(({r,i})=>`<div class="rec"><span class="h">${r.build||""} ${r.unit}<span class="mini">　缺陷${r._cnt}项${(r.photos&&r.photos.length)?'　📷'+r.photos.length:''}</span></span>
+      <span class="badge ${r._cls}" style="font-size:11px;padding:3px 8px;">${r._lv}</span>
+      <button class="edit" onclick="editRec(${i})">✏️改</button><button class="del" onclick="delRec(${i})">🗑删</button></div>`).join("");
+  let n=state.records.length,sw=0,l3=0,l2=0,l1=0,l0=0,ph=0;
+  state.records.forEach(r=>{ if(r._swap)sw++; if(r._cls==="lv3")l3++; else if(r._cls==="lv2")l2++; else if(r._cls==="lv1")l1++; else if(r._cls==="lv0")l0++; ph+=(r.photos?r.photos.length:0); });
+  const pend=state.records.filter(r=>!r.exported).length;
+  document.getElementById("statBox").innerHTML=`<span>已存 <b>${n}</b> 户</span><span style="color:#1E7A46;font-weight:700">待导 ${pend}</span><span style="color:#C00000">需换件 ${sw}</span><span>③ ${l3}</span><span>② ${l2}</span><span>① ${l1}</span><span>〇 ${l0}</span><span>📷 ${ph}</span>`;
+  const bn=document.getElementById("btnNew"); if(bn) bn.textContent = pend>0?`导出新增 ${pend} 户（表格＋照片）`:`导出新增（暂无新增）`;
+}
+
+// ===== 导出 =====
+function rowsForExport(recs){
+  recs=recs||state.records;
+  const head=["序号","楼栋","户号","户型","柜体供应商","台面供应商","外观供应商","检查人","检查日期",
+    ...FIXED, "现场自定义项","本户缺陷项数","本户最高等级","是否需换件","照片数","照片备注","备注"];
+  const rows=recs.map((r,i)=>{
+    const g=r.gsup||{};
+    const fx=FIXED.map(code=> (r.j&&r.j[code])||"");
+    const cust=(r.custom||[]).filter(c=>(c.name||'').trim()).map(c=>`${c.name}(${c.sup||'?'}):${c.val||'未判'}`).join("；");
+    const pnotes=(r.photos||[]).map((p,k)=>`${k+1}.${p.note||'(未注)'}`).join("；");
+    return [i+1,r.build||"",r.unit||"",r.type||"",g.cabinet||"",g.counter||"",g.surface||"",r.who||"",r.date||"", ...fx, cust, r._cnt, r._lv, r._swap, (r.photos?r.photos.length:0), pnotes, r.note||""];
+  });
+  return {head,rows};
+}
+function buildXlsStr(){
+  const {head,rows}=rowsForExport();
+  const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const th=head.map(h=>`<th style="background:#E8EEF7;border:1px solid #bbb;padding:4px;font-size:12px;">${esc(h)}</th>`).join("");
+  const fxStart=9;
+  const tb=rows.map(r=>"<tr>"+r.map((c,ci)=>{ let color=(ci>=fxStart&&ci<fxStart+FIXED.length)?(c==="不可交付"?"#C00000":c==="严重"?"#BF8F00":""):""; return `<td style="border:1px solid #ccc;padding:4px;font-size:12px;${color?'color:'+color+';font-weight:700;':''}">${esc(c)}</td>`; }).join("")+"</tr>").join("");
+  return `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>现场排查</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table border="1">${"<tr>"+th+"</tr>"+tb}</table></body></html>`;
+}
+function san(s){ return String(s||"").replace(/[\\/:*?"<>|]/g,"_").trim()||"_"; }
+function fnameBase(){ const who=(state.records[0]&&state.records[0].who)||"排查"; return `金茂府不锈钢排查_${who}_${todayStr()}_${state.records.length}户`; }
+
+// 导出前：若当前正在填的这户已填户号但没保存，提示先保存
+function maybeSaveCurrent(){
+  const c=state.cur;
+  const hasJudg = Object.keys(c.j||{}).length>0 || (c.custom||[]).some(x=>(x.name||'').trim()) || (c.photos||[]).length>0;
+  if((c.unit||'').trim() && hasJudg){
+    if(confirm(`当前正在填的【${c.build||''} ${c.unit}】还没点"保存本户"。\n先保存它再导出吗？（点取消=只导出已保存的户）`)){ saveHouse(); }
+  }
+}
+function buildCsvStr(recs){
+  const {head,rows}=rowsForExport(recs);
+  return [head,...rows].map(r=>r.map(c=>{ c=String(c); return /[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c; }).join(",")).join("\r\n");
+}
+function exportCSV(){
+  maybeSaveCurrent();
+  if(!state.records.length){ toast("还没有保存任何户。先填一户→点【保存本户】，再来导出。"); return; }
+  downloadBlob(new Blob(["﻿"+buildCsvStr()],{type:"text/csv;charset=utf-8"}), fnameBase()+".csv"); toast("已导出 CSV");
+}
+// 把给定的若干户打包(表格CSV+照片)下载；返回照片数
+async function exportBundle(recs, base){
+  const enc=new TextEncoder();
+  const files=[{name:base+".csv", bytes:enc.encode("﻿"+buildCsvStr(recs))}];
+  let nPhoto=0;
+  for(const r of recs){ let seq=0;
+    for(const p of (r.photos||[])){ const m=await mGet(p.id); if(!m||!m.blob)continue; seq++; nPhoto++;
+      const ext=p.kind==='vid'?(m.ext||'mp4'):'jpg'; const folder=p.kind==='vid'?'视频':'照片';
+      const noteSan=p.note?('-'+san(p.note).slice(0,16)):'';
+      files.push({name:`${folder}/${san(r.build)}-${san(r.unit)}-${seq}${noteSan}.${ext}`, bytes:new Uint8Array(await m.blob.arrayBuffer())});
+    }
+  }
+  if(nPhoto===0){ downloadBlob(new Blob(["﻿"+buildCsvStr(recs)],{type:"text/csv;charset=utf-8"}), base+".csv"); }
+  else { downloadBlob(zipStore(files), base+".zip"); }
+  return nPhoto;
+}
+// 只导上次导出之后【新增/改动】的户
+async function exportNew(){
+  maybeSaveCurrent();
+  const pending=state.records.filter(r=>!r.exported);
+  if(!pending.length){ toast("没有新增的户（已保存的都导过了）"); return; }
+  toast("正在打包新增…");
+  state.exportBatch=(state.exportBatch||0)+1;
+  const base=`金茂府不锈钢排查_${(pending[0].who||'排查')}_${todayStr()}_第${state.exportBatch}批_新增${pending.length}户`;
+  try{ await exportBundle(pending, base); pending.forEach(r=>r.exported=true); persist(); renderRecs(); toast(`已导出新增 ${pending.length} 户`); }
+  catch(e){ state.exportBatch--; toast("打包失败，请重试"); }
+}
+// 导出全部(备份/最后用)
+async function exportAll(){
+  maybeSaveCurrent();
+  if(!state.records.length){ toast("还没有保存任何户。先填一户→点【保存本户】，再来导出。"); return; }
+  toast("正在打包全部…");
+  try{ await exportBundle(state.records, fnameBase()+"_全部"); state.records.forEach(r=>r.exported=true); persist(); renderRecs(); toast("已导出全部 "+state.records.length+" 户"); }
+  catch(e){ toast("打包失败，请重试"); }
+}
+function clearAll(){ if(!confirm("确定清空全部 "+state.records.length+" 户记录和照片？建议先导出。")) return; mClear(); state=blank(); persist(); fillForm(); renderDefects(); renderCustom(); renderPhotos(); refreshStatus(); renderRecs(); }
+
+// ===== ZIP (STORE, 无压缩) =====
+function crc32(b){ let c=~0; for(let i=0;i<b.length;i++){ c^=b[i]; for(let k=0;k<8;k++) c=(c>>>1)^(0xEDB88320 & -(c&1)); } return ~c>>>0; }
+function zipStore(files){
+  const enc=new TextEncoder(); const parts=[]; const central=[]; let offset=0;
+  const u16=n=>[n&255,(n>>8)&255]; const u32=n=>[n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255];
+  for(const f of files){
+    const nameB=enc.encode(f.name); const crc=crc32(f.bytes); const sz=f.bytes.length;
+    const lh=new Uint8Array([].concat(u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(0),u16(0),u32(crc),u32(sz),u32(sz),u16(nameB.length),u16(0)));
+    parts.push(lh,nameB,f.bytes);
+    central.push(new Uint8Array([].concat(u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(0),u16(0),u32(crc),u32(sz),u32(sz),u16(nameB.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(offset))), nameB);
+    offset += lh.length + nameB.length + f.bytes.length;
+  }
+  let cs=0; central.forEach(c=>cs+=c.length);
+  const eocd=new Uint8Array([].concat(u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(cs),u32(offset),u16(0)));
+  return new Blob([...parts,...central,eocd],{type:"application/zip"});
+}
+function downloadBlob(blob,name){ const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},800); }
+
+function toast(t){ const el=document.getElementById("toast"); el.textContent=t; el.style.display="block"; clearTimeout(el._t); el._t=setTimeout(()=>el.style.display="none",1500); }
+// 强制拉取最新版（换 query 绕过 iOS 缓存；你录入的数据按域名存,不会丢）
+function forceUpdate(){ toast("正在拉取最新版…"); location.href = location.pathname + "?u=" + Date.now(); }
+
+/* ===== 大图查看：点缩略图全屏，双指/双击放大+拖动 ===== */
+let _lb={scale:1,tx:0,ty:0,sx:0,sy:0,sd:0,ss:1,mode:0,lastTap:0}, _lbInit=false;
+function lbBind(){ if(_lbInit)return; _lbInit=true; const img=document.getElementById('lbimg');
+  img.addEventListener('touchstart',lbStart,{passive:false});
+  img.addEventListener('touchmove',lbMove,{passive:false});
+  img.addEventListener('touchend',function(){_lb.mode=0;}); }
+function lbApply(){ document.getElementById('lbimg').style.transform='translate('+_lb.tx+'px,'+_lb.ty+'px) scale('+_lb.scale+')'; }
+function lbDist(t){ return Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY); }
+function lbStart(e){ const t=e.touches;
+  if(t.length===2){ _lb.mode=2; _lb.sd=lbDist(t); _lb.ss=_lb.scale; e.preventDefault(); }
+  else if(t.length===1){ const now=Date.now();
+    if(now-_lb.lastTap<300){ _lb.scale=_lb.scale>1?1:2.5; if(_lb.scale<=1){_lb.tx=0;_lb.ty=0;} lbApply(); _lb.mode=0; _lb.lastTap=0; e.preventDefault(); return; }
+    _lb.lastTap=now; _lb.mode=1; _lb.sx=t[0].clientX-_lb.tx; _lb.sy=t[0].clientY-_lb.ty; } }
+function lbMove(e){ const t=e.touches;
+  if(_lb.mode===2 && t.length===2){ e.preventDefault(); _lb.scale=Math.min(5,Math.max(1,_lb.ss*lbDist(t)/_lb.sd)); if(_lb.scale<=1){_lb.tx=0;_lb.ty=0;} lbApply(); }
+  else if(_lb.mode===1 && t.length===1 && _lb.scale>1){ e.preventDefault(); _lb.tx=t[0].clientX-_lb.sx; _lb.ty=t[0].clientY-_lb.sy; lbApply(); } }
+async function openImg(id){ const m=await mGet(id); if(!m||!m.blob){toast("照片读取失败");return;} lbBind();
+  const ov=document.getElementById('lbox'), img=document.getElementById('lbimg');
+  if(img._u)URL.revokeObjectURL(img._u); img._u=URL.createObjectURL(m.blob); img.src=img._u;
+  _lb={scale:1,tx:0,ty:0,sx:0,sy:0,sd:0,ss:1,mode:0,lastTap:0}; lbApply(); ov.style.display='flex'; }
+function closeImg(){ const ov=document.getElementById('lbox'), img=document.getElementById('lbimg'); ov.style.display='none'; if(img._u){URL.revokeObjectURL(img._u);img._u=null;} img.src=''; }
+
+// ===== 启动 =====
+bindFields(); fillForm(); renderDefects(); renderCustom(); renderPhotos(); refreshStatus(); renderRecs();
+</script>
+<div id="lbox" class="lbox" onclick="if(event.target.id==='lbox')closeImg()">
+  <button class="lbx" onclick="closeImg()" aria-label="关闭">✕</button>
+  <img id="lbimg" alt="">
+  <div class="lbhint">双指放大 · 双击放大/还原 · 拖动看细节 · 空白处或 ✕ 关闭</div>
+</div>
+<div id="annoBox" class="annoBox">
+  <div class="annoHint">✏️ 用手指圈出有问题的位置（红圈），圈好点「完成」；不用圈也可直接「完成」</div>
+  <canvas id="annoCv"></canvas>
+  <div class="annoBar">
+    <button onclick="annoCancel()">↩重拍</button>
+    <button onclick="annoUndo()">撤销</button>
+    <button onclick="annoClear()">清除</button>
+    <button class="done" onclick="annoDone()">✓ 完成</button>
+  </div>
+</div>
+</body>
+</html>
